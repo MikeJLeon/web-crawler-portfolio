@@ -27,7 +27,17 @@ from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
 from datetime import datetime
-
+#
+from pymongo import MongoClient
+# pprint library is used to make the output look more pretty
+from pprint import pprint
+# connect to MongoDB, change the << MONGODB URL >> to reflect your own connection string
+client = MongoClient("mongodb+srv://michaeljleon:Marine90!@crawlerofa-cauix.mongodb.net/test?retryWrites=true")
+db=client.admin
+# Issue the serverStatus command and print the results
+serverStatusResult=db.command("serverStatus")
+pprint(serverStatusResult)
+# This script scrapes a website and pulls specific data.
 FOUND_LIST = []
 QUEUE = []
 OUTPUT = {}
