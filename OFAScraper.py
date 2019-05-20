@@ -27,17 +27,7 @@ from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
 from datetime import datetime
-#
-from pymongo import MongoClient
-# pprint library is used to make the output look more pretty
-from pprint import pprint
-# connect to MongoDB, change the << MONGODB URL >> to reflect your own connection string
-client = MongoClient("mongodb+srv://michaeljleon:Marine90!@crawlerofa-cauix.mongodb.net/test?retryWrites=true")
-db=client.admin
-# Issue the serverStatus command and print the results
-serverStatusResult=db.command("serverStatus")
-pprint(serverStatusResult)
-# This script scrapes a website and pulls specific data.
+
 FOUND_LIST = []
 QUEUE = []
 OUTPUT = {}
@@ -57,20 +47,21 @@ def ofa_crawl(url):
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
-    print("Starting OFA Crawler; " + str(datetime.now()), file=f)
+    print("Starting OFA Crawler; " + str(datetime.now()))
 
     while pages <= 3:
         jsQueue = []
         if pages == 1:
             try:
                 driver.get(url)
-                print("\nConnecting to " + url + "; success\n", file=f)
+                print("\nConnecting to " + url + "; success\n")
             except:
-                print("\nConnecting to " + url + "; failed\n", file=f)
+                print("\nConnecting to " + url + "; failed\n")
 
         # set selenium to click to the next month from current calendar month
         if pages == 2:
             driver.get(url)
+            time.sleep(1)
             WebDriverWait(driver, 1).until(EC.element_to_be_clickable(
                 (By.XPATH, "//a[img[@alt='Forward']]"))).click()
         # set selenium to click to the month after next month
@@ -138,7 +129,7 @@ def ofa_crawl(url):
 
 def open_link(current_soup, current_url):
     data = {}
-    print("Found event " + current_url, file=f)
+    print("Found event " + current_url)
     data["ID"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, current_url))
     data["URL"] = current_url
     data["Title"] = str(find_title(current_soup))
@@ -222,13 +213,13 @@ def main():
             ofa_crawl(OFA)
             break
         except Exception as e:
-            print("Error gathering URL data, " + str(e), file=f)
+            print("Error gathering URL data, " + str(e))
             if str(e) == "list index out of range":
                 count += 1
                 print("Retrying selenium...")
             else:
                 break
-    print("\nClosing OFA Crawler; " + str(datetime.now()), file=f)
+    print("\nClosing OFA Crawler; " + str(datetime.now()))
+
 
 main()
-print("yo")
