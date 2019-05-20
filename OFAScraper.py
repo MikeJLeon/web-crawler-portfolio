@@ -27,7 +27,6 @@ from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
 from datetime import datetime
-import boto3
 f = open("ofalog.log", "w")
 # This script scrapes a website and pulls specific data.
 FOUND_LIST = []
@@ -37,7 +36,6 @@ DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
 
-dynamodb = boto3.resource('dynamodb', 'us-east-1')
 
 def ofa_crawl(url):
     global QUEUE
@@ -57,23 +55,25 @@ def ofa_crawl(url):
         if pages == 1:
             try:
                 driver.get(url)
-                print("\nConnecting to " + url + "; success\n", file=f) 
+                print("\nConnecting to " + url + "; success\n", file=f)
             except:
-                print("\nConnecting to " + url + "; failed\n", file=f)  
-            
+                print("\nConnecting to " + url + "; failed\n", file=f)
+
         # set selenium to click to the next month from current calendar month
-        if pages == 2:  
+        if pages == 2:
             driver.get(url)
-            WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, "//a[img[@alt='Forward']]"))).click()    
+            WebDriverWait(driver, 1).until(EC.element_to_be_clickable(
+                (By.XPATH, "//a[img[@alt='Forward']]"))).click()
         # set selenium to click to the month after next month
         elif pages == 3:
             driver.get(url)
-            WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, "//a[img[@alt='Forward']]"))).click()
+            WebDriverWait(driver, 1).until(EC.element_to_be_clickable(
+                (By.XPATH, "//a[img[@alt='Forward']]"))).click()
             time.sleep(1)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
-            
+
         # parse the pages and add all links found to a list
-        soup = BeautifulSoup(driver.page_source, "html.parser")  
+        soup = BeautifulSoup(driver.page_source, "html.parser")
         for row in soup.find_all("div"):
             if row.get("onclick"):
                 jsQueue.append(row.get("class")[0])
@@ -83,11 +83,11 @@ def ofa_crawl(url):
             pass
 
         # to refresh the elements and retrieve them on the current page
-        if pages >= 2 :  
-            time.sleep(0.45)  
-            count = 0   
+        if pages >= 2:
+            time.sleep(0.45)
+            count = 0
             while count != 5:
-                soup = BeautifulSoup(driver.page_source, "html.parser")  
+                soup = BeautifulSoup(driver.page_source, "html.parser")
                 for row in soup.find_all("div"):
                     if row.get("onclick"):
                         jsQueue.append(row.get("class")[0])
@@ -96,18 +96,18 @@ def ofa_crawl(url):
                 except:
                     pass
                 count += 1
-                      
+
         # Click all found elements to open page and grab the URL
         for row in x:
             row.click()
             driver.switch_to.window(driver.window_handles[1])
 
-            # check for links that previously found from the previous month, if not found 
+            # check for links that previously found from the previous month, if not found
             # add to list
             if driver.current_url not in FOUND_LIST:
- 
+
                 FOUND_LIST.append(driver.current_url)
-                
+
                 current_url = driver.current_url
                 current_soup = BeautifulSoup(driver.page_source, "html.parser")
                 for linebreak in current_soup.find_all('br'):
@@ -116,11 +116,11 @@ def ofa_crawl(url):
                 data = open_link(current_soup, current_url)
                 table = dynamodb.Table('events')
                 table.put_item(Item={'ID': data['ID'],
-                                    'URL': data['URL'],
-                                    'Title': data['Title'],
-                                    'Description': data['Description'],
-                                    'Location': data['Location'],
-                                    'Date': data['Date']})
+                                     'URL': data['URL'],
+                                     'Title': data['Title'],
+                                     'Description': data['Description'],
+                                     'Location': data['Location'],
+                                     'Date': data['Date']})
                 driver.switch_to.window(driver.window_handles[0])
 
             else:
@@ -131,8 +131,10 @@ def ofa_crawl(url):
 
 # This open work on the data from each link, call for helpers to get additional data
 # return data and status
+
+
 def open_link(current_soup, current_url):
-    data = {}    
+    data = {}
     print("Found event " + current_url, file=f)
     data["ID"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, current_url))
     data["URL"] = current_url
@@ -143,13 +145,15 @@ def open_link(current_soup, current_url):
     return data
 
 # This function to get the title of each event from link
+
+
 def find_title(soup):
     if soup.find(class_="header-theme"):
         title = soup.find(class_="header-theme").text
         title = title.replace('\n', '')
         title = title.replace('\t', '')
         return title
-        
+
 
 # This function to get the description of each event from link
 def find_description(soup):
@@ -173,7 +177,9 @@ def find_description(soup):
         p_desc = "None"
     return(p_desc)
 
-#This function to get the date from each event from link
+# This function to get the date from each event from link
+
+
 def find_date(soup):
     for row in soup.findAll(attrs={"class": "subheader-theme"}):
         row = row.text.splitlines()
@@ -189,6 +195,8 @@ def find_date(soup):
     return("Unknown")
 
 # This function to get the location of each event from link
+
+
 def find_location(soup):
     desc = soup.find("span", attrs={"class": "event-desc-theme"})
     loc = ""
@@ -202,6 +210,8 @@ def find_location(soup):
     # print(OUTPUT)W
 
 # Main function
+
+
 def main():
     count = 0
     while count != 5:
@@ -216,14 +226,5 @@ def main():
             else:
                 break
     print("\nClosing OFA Crawler; " + str(datetime.now()), file=f)
-
-
-if __name__ == '__main__':
-    main()
-
-def lambda_handler(event, context):
-    main()
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
-    }
+        
+main()

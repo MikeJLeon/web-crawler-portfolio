@@ -1,4 +1,4 @@
 selenium
 bs4
 datetime
-dateutil.parser
+dateutil
