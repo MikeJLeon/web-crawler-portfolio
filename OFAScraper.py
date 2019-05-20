@@ -27,8 +27,7 @@ from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
 from datetime import datetime
-f = open("ofalog.log", "w")
-# This script scrapes a website and pulls specific data.
+
 FOUND_LIST = []
 QUEUE = []
 OUTPUT = {}
@@ -114,13 +113,7 @@ def ofa_crawl(url):
                     linebreak.extract()
                 # Calls OFAScraper module to populate a dictionary object to add to the output
                 data = open_link(current_soup, current_url)
-                table = dynamodb.Table('events')
-                table.put_item(Item={'ID': data['ID'],
-                                     'URL': data['URL'],
-                                     'Title': data['Title'],
-                                     'Description': data['Description'],
-                                     'Location': data['Location'],
-                                     'Date': data['Date']})
+                print(data)
                 driver.switch_to.window(driver.window_handles[0])
 
             else:
@@ -226,5 +219,6 @@ def main():
             else:
                 break
     print("\nClosing OFA Crawler; " + str(datetime.now()), file=f)
-        
+
 main()
+print("yo")
