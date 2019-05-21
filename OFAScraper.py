@@ -40,10 +40,11 @@ def ofa_crawl(url):
     global QUEUE
     global FOUND_LIST
     global SOUP
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    options.add_argument("--log-level=3")
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_location = GOOGLE_CHROME_BIN
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--no-sandbox')
+    driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
