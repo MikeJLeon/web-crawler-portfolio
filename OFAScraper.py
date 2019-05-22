@@ -19,7 +19,6 @@ import uuid
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import selenium.webdriver.chrome.service as service
-from selenium.webdriver import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -67,14 +66,16 @@ def ofa_crawl(url):
         # set selenium to click to the next month from current calendar month
         if pages == 2:
             driver.get(url)
-            actions = ActionChains(driver)
-            actions.move_to_element((By.XPATH, "//a[img[@alt='Forward']]")).click().perform()
+            time.sleep(10)
+            WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
+                (By.XPATH, "//a[img[@alt='Forward']]"))).click()
         # set selenium to click to the month after next month
         elif pages == 3:
             driver.get(url)
-            WebDriverWait(driver, 1).until(EC.element_to_be_clickable(
+            WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
                 (By.XPATH, "//a[img[@alt='Forward']]"))).click()
             time.sleep(10)
+            driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
 
         # parse the pages and add all links found to a list
         soup = BeautifulSoup(driver.page_source, "html.parser")
