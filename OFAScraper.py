@@ -29,7 +29,17 @@ from dateutil.parser import parse
 from datetime import datetime
 import os
 
+from pymongo import MongoClient
+# pprint library is used to make the output look more pretty
+from pprint import pprint
+# connect to MongoDB, change the << MONGODB URL >> to reflect your own connection string
 
+client = MongoClient(os.environ['MONGO_DB_KEY'])
+db = client.events
+# Issue the serverStatus command and print the results
+serverStatusResult=db.command("serverStatus")
+collection = db.OFA
+collection.remove({})
 FOUND_LIST = []
 QUEUE = []
 OUTPUT = {}
@@ -48,41 +58,55 @@ def ofa_crawl(url):
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome(executable_path="chromedriver", chrome_options=chrome_options)
+    driver = webdriver.Chrome(executable_path="C:\\Users\\micha\\Documents\\GitHub\\web-crawler-portfolio\\chromedriver", chrome_options=chrome_options)
+    #driver = webdriver.Chrome(executable_path="chromedriver", chrome_options=chrome_options)
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
     print("Starting OFA Crawler; " + str(datetime.now()))
-
+    driver.get(url)
     while pages <= 3:
         jsQueue = []
         if pages == 1:
             try:
-                driver.get(url)
                 print("\nConnecting to " + url + "; success\n")
             except:
                 print("\nConnecting to " + url + "; failed\n")
+                break
 
         # set selenium to click to the next month from current calendar month
         if pages == 2:
-            driver.get(url)
-            WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH, "//div[@class='m-usr m-event-title-theme']")))
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
-                (By.XPATH, "//a[img[@alt='Forward']]"))).click()
-            print("page 2")
+            count = 0
+            while(count != 10):
+                try:
+                    driver.get((By.XPATH, '//*[@id="main_cal"]/tbody/tr/td/table/tbody/tr[1]/td[3]')).click()
+                    print("page 2")
+                except:
+                    print("Page had issue clicking next, retrying")
+                    count += 1
+                    if(count == 10):
+                        print("Selenium failed to click next")
+                        break
+
         # set selenium to click to the month after next month
         elif pages == 3:
-            driver.get(url)
-            WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH, "//div[@class='m-usr m-event-title-theme']")))
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
-                (By.XPATH, "//a[img[@alt='Forward']]"))).click()
-            print("page 3")
+             while(count != 10):
+                try:
+                    driver.get((By.XPATH, '//*[@id="main_cal"]/tbody/tr/td/table/tbody/tr[1]/td[3]')).click()
+                    print("page 3")
+                except:
+                    print("Page had issue clicking next, retrying")
+                    count += 1
+                    if(count == 10):
+                        print("Selenium failed to click next")
+                        break
 
         # parse the pages and add all links found to a list
         soup = BeautifulSoup(driver.page_source, "html.parser")
         for row in soup.find_all("div"):
             if row.get("onclick"):
                 jsQueue.append(row.get("class")[0])
+                break
         try:
             x = driver.find_elements_by_class_name(jsQueue[0])
         except:
@@ -105,8 +129,16 @@ def ofa_crawl(url):
 
         # Click all found elements to open page and grab the URL
         for row in x:
-            row.click()
-            driver.switch_to.window(driver.window_handles[1])
+            count = 0
+            while(count != 10):
+                try:
+                    row.click()
+                    driver.switch_to.window(driver.window_handles[1])
+                    break
+                except:
+                    count += 1
+                    if(count != 10):
+                        print("Couldnt click event, retrying...")
 
             # check for links that previously found from the previous month, if not found
             # add to list
@@ -121,6 +153,7 @@ def ofa_crawl(url):
                 # Calls OFAScraper module to populate a dictionary object to add to the output
                 data = open_link(current_soup, current_url)
                 print(data)
+                collection.insert_one(data)
                 driver.switch_to.window(driver.window_handles[0])
 
             else:
@@ -220,11 +253,8 @@ def main():
             break
         except Exception as e:
             print("Error gathering URL data, " + str(e))
-            if str(e) == "list index out of range":
-                count += 1
-                print("Retrying selenium...")
-            else:
-                break
+            count += 1
+            print("Retrying selenium...")
     print("\nClosing OFA Crawler; " + str(datetime.now()))
 
 
