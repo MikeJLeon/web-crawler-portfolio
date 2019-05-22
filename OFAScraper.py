@@ -58,8 +58,8 @@ def ofa_crawl(url):
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome(executable_path="C:\\Users\\micha\\Documents\\GitHub\\web-crawler-portfolio\\chromedriver", chrome_options=chrome_options)
-    #driver = webdriver.Chrome(executable_path="chromedriver", chrome_options=chrome_options)
+    #driver = webdriver.Chrome(executable_path="C:\\Users\\micha\\Documents\\GitHub\\web-crawler-portfolio\\chromedriver", chrome_options=chrome_options)
+    driver = webdriver.Chrome(executable_path="chromedriver", chrome_options=chrome_options)
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
