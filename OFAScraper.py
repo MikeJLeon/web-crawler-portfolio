@@ -36,7 +36,7 @@ OUTPUT = {}
 DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
-GOOGLE_CHROME_BIN = os.environ['$GOOGLE_CHROME_BIN']
+GOOGLE_CHROME_BIN = os.environ['GOOGLE_CHROME_BIN']
 CHROMEDRIVER_PATH = os.environ['CHROMEDRIVER_PATH']
 
 
