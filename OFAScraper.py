@@ -36,7 +36,7 @@ OUTPUT = {}
 DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
-GOOGLE_CHROME_BIN = os.environ['GOOGLE_CHROME_SHIM', None]
+GOOGLE_CHROME_BIN = os.environ['GOOGLE_CHROME_SHIM']
 
 
 def ofa_crawl(url):
