@@ -65,7 +65,7 @@ def ofa_crawl(url):
         # set selenium to click to the next month from current calendar month
         if pages == 2:
             driver.get(url)
-            time.sleep(1)
+            time.sleep(10)
             WebDriverWait(driver, 1).until(EC.element_to_be_clickable(
                 (By.XPATH, "//a[img[@alt='Forward']]"))).click()
         # set selenium to click to the month after next month
@@ -73,7 +73,7 @@ def ofa_crawl(url):
             driver.get(url)
             WebDriverWait(driver, 1).until(EC.element_to_be_clickable(
                 (By.XPATH, "//a[img[@alt='Forward']]"))).click()
-            time.sleep(1)
+            time.sleep(10)
             driver.find_element_by_xpath("//a[img[@alt='Forward']]").click()
 
         # parse the pages and add all links found to a list
