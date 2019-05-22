@@ -28,7 +28,6 @@ import time
 from dateutil.parser import parse
 from datetime import datetime
 import os
-
 from pymongo import MongoClient
 # pprint library is used to make the output look more pretty
 from pprint import pprint
