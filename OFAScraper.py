@@ -36,8 +36,7 @@ OUTPUT = {}
 DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
-GOOGLE_CHROME_BIN = os.environ['GOOGLE_CHROME_BIN']
-CHROMEDRIVER_PATH = os.environ['CHROMEDRIVER_PATH']
+GOOGLE_CHROME_BIN = os.environ['GOOGLE_CHROME_SHIM', None]
 
 
 def ofa_crawl(url):
@@ -48,7 +47,7 @@ def ofa_crawl(url):
     chrome_options.binary_location = GOOGLE_CHROME_BIN
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--no-sandbox')
-    driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
+    driver = webdriver.Chrome(executable_path="chromedriver", chrome_options=chrome_options)
     pages = 1
 
     # Grab all links on calendar for 3 months from current month
