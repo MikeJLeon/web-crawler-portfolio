@@ -27,6 +27,8 @@ from bs4 import BeautifulSoup
 import time
 from dateutil.parser import parse
 from datetime import datetime
+import os
+
 
 FOUND_LIST = []
 QUEUE = []
@@ -34,6 +36,8 @@ OUTPUT = {}
 DATA = {}
 SOUP = []
 OFA = "https://outdoorsforall.org/events-news/calendar/"
+GOOGLE_CHROME_BIN = os.environ['GOOGLE_CHROME_BIN']
+CHROMEDRIVER_PATH = os.environ['CHROMEDRIVER_PATH']
 
 
 def ofa_crawl(url):
